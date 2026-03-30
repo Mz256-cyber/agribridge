@@ -5,7 +5,7 @@
  * It replaces the fake/demo data with real data from the database.
  *
  * WHAT THIS FILE DOES:
- * - Talks to the Flask API at http://localhost:5000
+ * - Talks to the Flask API at https://agribridge-yw0k.onrender.com
  * - Makes all buttons actually save and load data from the database
  * - Makes the training modules open with real content and videos
  * - Makes the USSD simulator use the real backend logic
@@ -13,7 +13,7 @@
  * - Makes the matching engine use real farmer data
  */
 
-const API = 'http://localhost:5000/api';
+const API = 'https://agribridge-yw0k.onrender.com/api';
 
 /* ─── GENERIC API HELPER ────────────────────────────────────────────────── */
 async function api(method, endpoint, body = null) {
