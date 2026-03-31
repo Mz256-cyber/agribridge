@@ -1905,10 +1905,10 @@ def home():
 @app.route('/api_connector.js')
 def connector():
     return send_from_directory('.', 'api_connector.js')
-    print("\n" + "="*55)
-    print("  🌿 AgriBridge Backend Server")
-    print("="*55)
-    print("  Starting setup...")
+print("\n" + "="*55)
+print("  🌿 AgriBridge Backend Server")
+print("="*55)
+print("  Starting setup...")
 
     # Create static folder for the HTML file
     os.makedirs('static', exist_ok=True)
