@@ -1898,7 +1898,13 @@ def serve_frontend():
 
 
 # ── RUN ───────────────────────────────────────────────────────────────────────
-if __name__ == '__main__':
+@app.route('/')
+def home():
+    return send_from_directory('.', 'agribridge.html')
+
+@app.route('/api_connector.js')
+def connector():
+    return send_from_directory('.', 'api_connector.js')
     print("\n" + "="*55)
     print("  🌿 AgriBridge Backend Server")
     print("="*55)
@@ -1929,9 +1935,3 @@ if __name__ == '__main__':
 
     app.run(debug=True, port=5000, host='0.0.0.0')
 
-
-from flask import send_from_directory
-
-@app.route('/')
-def home():
-    return send_from_directory('.', 'agribridge.html')
