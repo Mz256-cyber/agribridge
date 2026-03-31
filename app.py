@@ -1894,21 +1894,15 @@ def search():
 @app.route('/')
 def serve_frontend():
     """Serve the main HTML file."""
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('.', 'agribridge.html')
 
 
 # ── RUN ───────────────────────────────────────────────────────────────────────
-@app.route('/')
-def home():
-    return send_from_directory('.', 'agribridge.html')
-
-@app.route('/api_connector.js')
-def connector():
-    return send_from_directory('.', 'api_connector.js')
-print("\n" + "="*55)
-print("  🌿 AgriBridge Backend Server")
-print("="*55)
-print("  Starting setup...")
+if __name__ == '__main__':
+    print("\n" + "="*55)
+    print("  🌿 AgriBridge Backend Server")
+    print("="*55)
+    print("  Starting setup...")
 
     # Create static folder for the HTML file
     os.makedirs('static', exist_ok=True)
@@ -1935,3 +1929,9 @@ print("  Starting setup...")
 
     app.run(debug=True, port=5000, host='0.0.0.0')
 
+
+from flask import send_from_directory
+
+@app.route('/')
+def home():
+    return send_from_directory('.', 'agribridge.html')
