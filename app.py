@@ -1928,3 +1928,10 @@ if __name__ == '__main__':
     print("  Press Ctrl+C to stop\n")
 
     app.run(debug=True, port=5000, host='0.0.0.0')
+
+
+from flask import send_from_directory
+
+@app.route('/')
+def home():
+    return send_from_directory('.', 'agribridge.html')
