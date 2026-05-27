@@ -1,264 +1,312 @@
-# AgriBridge — Complete Setup Guide
-## Uganda's Farm-to-Table Intelligence Platform
+# ZEARN BOT — MULTI-AGENT + AUTONOMOUS LEARNING SYSTEM
+## Complete Architecture & How Everything Works
 
 ---
 
-## What's In This Project
+## THE FULL PICTURE
 
 ```
-agribridge_backend/
-│
-├── app.py              ← The Flask backend (Python server + API)
-├── schema.sql          ← All SQL table definitions (study this!)
-├── agribridge.db       ← The SQLite database (created automatically)
-├── run.sh              ← One-click start script
-│
-└── static/
-    ├── index.html      ← The main website (frontend)
-    └── api_connector.js ← Connects buttons to the backend
+Every WhatsApp message
+        │
+        ▼
+┌───────────────────────────────────────────────┐
+│              ORCHESTRATOR                      │
+│  Reads message → classifies intent in <1ms    │
+│  Routes to the right specialist agent          │
+└──────────────────────┬────────────────────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+        ▼              ▼              ▼
+  ┌──────────┐  ┌──────────┐  ┌──────────────┐
+  │CALCULATOR│  │   HEC    │  │  ADMISSIONS  │
+  │  Agent   │  │  Agent   │  │    Agent     │
+  │UACE/WASSCE│  │Bridging  │  │Cut-offs,     │
+  │PUJAB calc│  │Tracks    │  │courses,unis  │
+  └──────────┘  └──────────┘  └──────────────┘
+        │              │              │
+        ▼              ▼              ▼
+  ┌──────────┐  ┌──────────┐  ┌──────────────┐
+  │SCHOLARSHIP│  │  NEWS   │  │  RECOMMENDER │
+  │  Agent   │  │  Agent  │  │    Agent     │
+  │Funding,  │  │Live UNEB │  │Match interests│
+  │bursaries │  │JAB dates │  │to courses    │
+  └──────────┘  └──────────┘  └──────────────┘
+        │              │              │
+        ▼              ▼              ▼
+  ┌──────────┐  ┌──────────┐  ┌──────────────┐
+  │  STUDY   │  │DOCUMENT  │  │   FALLBACK   │
+  │  ABROAD  │  │  Agent   │  │    Agent     │
+  │UK/USA/DE/│  │Checklists│  │AI Brain for  │
+  │China etc │  │Portals   │  │everything else│
+  └──────────┘  └──────────┘  └──────────────┘
+        │
+        ▼
+┌───────────────────────────────────────────────┐
+│              TRAINER AGENT                    │
+│  Admin: TRAIN: fact | URL: ... | STATS        │
+│  Auto-learns from every good AI answer        │
+│  Learns from owner's manual replies           │
+└──────────────────────┬────────────────────────┘
+                       │
+                       ▼
+┌───────────────────────────────────────────────┐
+│          AUTONOMOUS LEARNING SCHEDULER         │
+│  Every 6h:   Crawl JAB, UNEB, Makerere       │
+│  Every 24h:  Crawl Kyambogo, MUBS, MUST       │
+│  Every Sunday: Full crawl + weekly report     │
+│  Every midnight: Clean stale entries          │
+│  Real-time: Learn from every AI answer        │
+│  Real-time: Learn from owner's replies        │
+└───────────────────────────────────────────────┘
 ```
 
 ---
 
-## How to Run (Step by Step)
+## HOW THE AGENTS MAKE THE BOT SMARTER
 
-### Step 1: Make sure Python is installed
+### 1. CALCULATOR AGENT
+**Handles:** "Physics A, Chemistry B, Biology C", "calculate pujab for medicine", "A1 B2 C4"
+- Parses UACE grades (A=6, B=5... O=1, F=0)
+- Parses WASSCE grades (A1=6, B2=5, C4=4...)
+- Calculates PUJAB weighted score (Essential×3, Relevant×2, Other×0.5)
+- Shows every qualifying course (government + private)
+- No API call needed — pure logic, instant response
+
+### 2. HEC AGENT
+**Handles:** "what is HEC", "HEC fees", "am I eligible for HEC", "HEC tracks"
+- Knows all 5 HEC tracks (HEA, HEB, HEP, HECBS, HEE)
+- Knows all institutions offering HEC
+- Knows fees, eligibility, how to apply, what happens after
+- Answers from knowledge base — no API call needed
+
+### 3. ADMISSIONS AGENT
+**Handles:** "Makerere cut-off for medicine", "Kyambogo engineering", "what points for law"
+- Searches trained knowledge base first
+- Falls back to AI with Uganda-specific system prompt
+- Gets more accurate over time as knowledge base grows
+
+### 4. SCHOLARSHIP AGENT
+**Handles:** "scholarships for Ugandans", "fully funded", "scholarship for women", "STEM scholarship"
+- Local database of 7 major scholarships
+- Auto-adds STEM/women-specific scholarships based on query
+- Searches trained knowledge for any new scholarships you've added
+
+### 5. NEWS AGENT
+**Handles:** "latest UNEB results", "JAB 2026", "when does Makerere intake open"
+- Searches trained knowledge base first
+- Tries Serper (Google) web search (needs SERPER_API_KEY)
+- Falls back to DuckDuckGo (free, no key needed)
+- Falls back to static guidance + official URLs
+
+### 6. RECOMMENDER AGENT
+**Handles:** "I love biology, what should I study?", "recommend a course for me", "help me choose"
+- Maps interests → subject combinations → degrees
+- Personalizes based on student profile (grades, target)
+- Falls back to AI for nuanced guidance
+
+### 7. STUDY ABROAD AGENT
+**Handles:** "study in UK", "Germany scholarship", "how to apply to US university"
+- Has built-in guides for UK/USA/Canada/Germany/Australia/China/South Africa/Rwanda
+- Searches trained knowledge for any info you've added
+- Falls back to AI for complex questions
+
+### 8. DOCUMENT AGENT
+**Handles:** "document checklist for Makerere", "personal statement guide", "how to apply to JAB"
+- Has step-by-step portal guides for all major Uganda universities
+- Personal statement writing guide
+- Recommendation letter guide
+
+### 9. TRAINER AGENT (Learning Brain)
+**Handles training commands + ALL autonomous learning**
+
+Training via WhatsApp:
+```
+TRAIN: Makerere 2026 intake opens February 15
+TRAIN: URL: https://jab.go.ug
+TRAIN: LIST
+TRAIN: STATS
+TRAIN: PENDING
+TRAIN: FORGET: wrong fact here
+TRAIN: CORRECT: old answer | correct answer
+```
+
+Autonomous learning (no commands):
+- Every good AI answer → saved as pending KB entry
+- Every time YOU reply to a student → bot learns your exact words (verified instantly)
+- Every web crawl → new content saved to KB
+
+### 10. FALLBACK AGENT
+**Handles:** everything that doesn't match other agents
+- Searches trained knowledge base first
+- Routes to AI brain with full student context
+- Auto-learns confident answers for next time
+- Tracks uncertain answers as knowledge gaps
+
+---
+
+## HOW AUTONOMOUS LEARNING WORKS
+
+### Step 1: A student asks a question
+```
+Student: "What is the cut-off for Makerere nursing 2026?"
+```
+
+### Step 2: Admissions agent handles it
+- Searches KB → finds nothing specific for 2026
+- Asks AI brain → gets answer: "Makerere Nursing 2026: Govt 15pts, Private 11pts..."
+
+### Step 3: Bot auto-learns the answer
+```
+autonomousLearn(question, answer) → saves to knowledge.collection (verified: false)
+```
+
+### Step 4: Next student asks same question
+- KB search finds the saved answer
+- Returns instantly (no AI API call needed!)
+- Faster + cheaper + consistent
+
+### Step 5: You review pending entries
+```
+TRAIN: PENDING → shows you 10 pending entries
+TRAIN: APPROVE: 65f3a2b1... → marks as verified
+```
+Or use `/dashboard → Knowledge Base → filter Pending Review`
+
+### Step 6: Owner replies to a student manually
+```
+Owner types: "The 2026 Makerere medicine intake is now open until March 15"
+```
+Bot automatically:
+- Saves this to `ownerLessons` collection (style reference)
+- Saves to `knowledge` collection as **verified** (your words = trusted)
+- Next time same question comes up → uses YOUR phrasing
+
+### Step 7: Web crawl (every 6 hours for high-priority sources)
+```
+Crawls: jab.go.ug, admissions.mak.ac.ug, uneb.ac.ug
+Extracts: relevant sections about cut-offs, deadlines, fees
+Saves: new chunks to knowledge base (verified: false)
+Notifies you if >10 new things learned
+```
+
+---
+
+## NEW OWNER COMMANDS
+
+| Command | What it does |
+|---------|-------------|
+| `!agents` | Show status of all 10 agents |
+| `!crawl` | Manual web crawl of high-priority sites now |
+| `!crawl jab` | Crawl only JAB website |
+| `!crawlstatus` | When each site was last crawled |
+| `!gaps` | Questions bot was uncertain about |
+| `!learnstats` | Full training statistics |
+| `!weeklyreport` | Weekly learning digest |
+| `TRAIN: fact` | Teach bot a new fact |
+| `TRAIN: URL: https://...` | Learn from a webpage |
+| `TRAIN: LIST` | See recent trained facts |
+| `TRAIN: STATS` | Training statistics |
+| `TRAIN: PENDING` | Review auto-learned entries |
+| `TRAIN: APPROVE: <id>` | Approve an entry |
+| `TRAIN: REJECT: <id>` | Delete bad entry |
+| `TRAIN: FORGET: text` | Remove a wrong fact |
+| `TRAIN: CORRECT: old \| new` | Fix a wrong answer |
+
+---
+
+## INSTALLATION ORDER
+
 ```bash
-python3 --version
-```
-You should see something like: `Python 3.10.x`
+# 1. Copy all agent files
+cp agents/*.js     your-project/bot/agents/
+cp learning/*.js   your-project/bot/learning/
 
-### Step 2: Make sure Flask is installed
-```bash
-pip3 install flask
-```
+# 2. Apply the 12 integration patches from finalIntegration.js
 
-### Step 3: Go into the project folder
-```bash
-cd agribridge_backend
-```
+# 3. Add to package.json dependencies (if not already there):
+#    No new npm packages needed! All agents use existing dependencies.
 
-### Step 4: Start the server
-```bash
-python3 app.py
-```
+# 4. Set env vars in Render:
+TRAIN_PASSWORD=your-secret-password
+SERPER_API_KEY=your-key  # optional but recommended for news agent
 
-You will see:
-```
-✅ Database tables created.
-🌱 Seeding database with sample data...
-✅ Server ready!
-📡 API running at: http://localhost:5000
-```
-
-### Step 5: Open the website
-Open your browser and go to:
-```
-http://localhost:5000
-```
-
-That's it! The full platform should be running.
-
----
-
-## Understanding the Code (For Learners)
-
-### What is Flask?
-Flask is a Python framework for building web servers.
-It receives requests from the browser and sends back responses.
-
-### What is SQLite?
-SQLite is a simple database that stores data in a single file (`agribridge.db`).
-You can open it with any SQLite browser to see all the data.
-
-### What is an API?
-API = Application Programming Interface.
-It's a set of URLs that the website can call to get or save data.
-
-For example:
-- `GET /api/listings` → returns all products for sale
-- `POST /api/orders` → creates a new order
-- `POST /api/ussd` → handles a USSD menu interaction
-
----
-
-## API Endpoints (All Available Routes)
-
-### Authentication
-| Method | URL | What it does |
-|--------|-----|--------------|
-| POST | /api/auth/register | Register a new user |
-| POST | /api/auth/login | Login with phone + password |
-| GET | /api/users/{id} | Get a user's profile |
-
-### Marketplace
-| Method | URL | What it does |
-|--------|-----|--------------|
-| GET | /api/listings | Get all products |
-| GET | /api/listings?category=fresh | Filter by category |
-| GET | /api/listings?search=tomato | Search products |
-| POST | /api/listings | Create a new listing |
-| DELETE | /api/listings/{id} | Remove a listing |
-
-### Orders
-| Method | URL | What it does |
-|--------|-----|--------------|
-| POST | /api/orders | Place a new order |
-| GET | /api/orders/{user_id} | Get orders for a user |
-| PUT | /api/orders/{ref}/status | Update order status |
-
-### Prices
-| Method | URL | What it does |
-|--------|-----|--------------|
-| GET | /api/prices | Get all crop prices |
-| POST | /api/prices | Add a new price record |
-
-### Training
-| Method | URL | What it does |
-|--------|-----|--------------|
-| GET | /api/training/modules | Get all modules |
-| GET | /api/training/modules?category=crop | Filter by category |
-| GET | /api/training/modules/{id} | Get full module content |
-| POST | /api/training/progress | Save user progress |
-| GET | /api/training/progress/{user_id} | Get user's progress |
-
-### USSD Simulator
-| Method | URL | What it does |
-|--------|-----|--------------|
-| POST | /api/ussd | Process a USSD input |
-
-### SMS Simulator
-| Method | URL | What it does |
-|--------|-----|--------------|
-| POST | /api/sms | Process an SMS command |
-
-### Matching Engine
-| Method | URL | What it does |
-|--------|-----|--------------|
-| POST | /api/match | Find matching farmers |
-| POST | /api/match/connect | Record a connection |
-
-### Other
-| Method | URL | What it does |
-|--------|-----|--------------|
-| POST | /api/contact | Submit contact form |
-| GET | /api/districts | Get district map data |
-| POST | /api/reviews | Leave a review |
-| GET | /api/stats | Get platform statistics |
-| GET | /api/search?q=tomato | Search everything |
-
----
-
-## How to Test the API (Without the Website)
-
-You can test any API endpoint using curl in the terminal:
-
-```bash
-# Get all prices
-curl http://localhost:5000/api/prices
-
-# Get all listings
-curl http://localhost:5000/api/listings
-
-# Register a new user
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test Farmer","phone":"+256700000099","role":"farmer","district":"Wakiso"}'
-
-# Test USSD (pressing '1' from home menu)
-curl -X POST http://localhost:5000/api/ussd \
-  -H "Content-Type: application/json" \
-  -d '{"phone":"+256700000099","input":"1","session_id":"test123"}'
-
-# Test SMS
-curl -X POST http://localhost:5000/api/sms \
-  -H "Content-Type: application/json" \
-  -d '{"phone":"+256700000099","message":"PRICES"}'
+# 5. Deploy and test:
+git add -A
+git commit -m "feat: add multi-agent system + autonomous learning"
+git push
 ```
 
 ---
 
-## The Database Tables
+## TEST COMMANDS (send these to your bot after deployment)
 
-Open `agribridge.db` with SQLite Browser to see all data visually.
+```
+# Calculator agent
+"Physics A, Chemistry B, Biology C, GP P"
+"I got A1, B2, C4 in WASSCE"
+"Calculate my PUJAB weight for Medicine"
 
-Or run queries in the terminal:
-```bash
-sqlite3 agribridge.db
+# HEC agent
+"What is HEC?"
+"HEC fees at MUBS"
+"Am I eligible for HEC?"
+"How do I apply for HEC?"
 
-# Inside sqlite3:
-.tables                  -- see all tables
-SELECT * FROM users;     -- see all users
-SELECT * FROM listings;  -- see all products
-.quit                    -- exit
+# News agent  
+"Latest UNEB results"
+"When does JAB 2026 placement come out?"
+"Is Makerere intake open?"
+
+# Scholarship agent
+"Scholarships for Ugandan women in STEM"
+"Fully funded Masters scholarships"
+
+# Study abroad agent
+"How do I study in Germany?"
+"CSC scholarship China"
+"UK university application process"
+
+# Training commands
+"TRAIN: LIST"
+"TRAIN: STATS"
+"TRAIN: Makerere 2026 intake opens March 1"
+"TRAIN: PENDING"
+
+# Admin commands
+"!agents"
+"!crawlstatus"
+"!gaps"
+"!learnstats"
 ```
 
 ---
 
-## Default Test Accounts
+## WHAT THE BOT LEARNS ON ITS OWN (weekly)
 
-| Name | Phone | Password | Role |
-|------|-------|----------|------|
-| Nakato Sarah | +256772100001 | pass123 | Farmer |
-| Ssemakula John | +256772100002 | pass123 | Vendor |
-| Grace Apio | +256772100003 | pass123 | Buyer |
-| Pearl Hotel | +256772100004 | pass123 | Hotel |
-| Admin | +256700000000 | admin2026 | Admin |
-
----
-
-## SMS Commands to Test
-
-Send these to the SMS simulator (or /api/sms endpoint):
-- `PRICES` — get all crop prices
-- `PRICES TOMATOES` — get tomato price only
-- `WEATHER KAMPALA` — get weather advisory
-- `LIST TOMATOES 200 7500` — list produce for sale
-- `ORDERS` — see your orders
-- `AGENT` — find nearest agent
-- `HELP` — see all commands
-- `JOIN Sarah Wakiso` — register via SMS
-
----
-
-## USSD Menu Tree (*789#)
+Every week Zearn will:
+1. Crawl 12 Uganda education websites for updates
+2. Save new cut-off points, deadlines, fee changes
+3. Learn from all your manual student replies
+4. Track which questions it was uncertain about
+5. Send you a Monday morning report like:
 
 ```
-Home Menu
-├── 1. Check Prices → Shows all crop prices from database
-├── 2. List My Produce → Enter CROP,KG,PRICE to list
-├── 3. My Orders → Shows real orders from database
-├── 4. Weather & Advisory → Today's farming advice
-├── 5. Talk to Agent → Nearest agent contact
-└── 6. My Account → Shows your profile data
+📚 Zearn Weekly Learning Report
+
+This week I learned 47 new things!
+
+Breakdown:
+• Auto-learned from AI answers: 31
+• You trained me: 8  
+• Learned from your replies: 6
+• Web crawls: 2
+
+Recent learnings:
+1. "Makerere 2026 medicine cut-off is now 19pts..."
+2. "JAB placement list released August 12..."
+...
+
+Total knowledge base: 312 entries
+Type TRAIN: PENDING to review and approve auto-learned entries.
 ```
-
----
-
-## Adding Your Own Video to Training Modules
-
-To add a real YouTube video to a training module:
-
-1. Find a YouTube video about farming (e.g., tomato planting in Uganda)
-2. Get the video ID from the URL (e.g., `dQw4w9WgXcQ` from `youtube.com/watch?v=dQw4w9WgXcQ`)
-3. Open `agribridge.db` in SQLite Browser
-4. Find the module in `training_modules` table
-5. Update `video_url` to: `https://www.youtube.com/embed/YOUR_VIDEO_ID`
-
-Or run this SQL:
-```sql
-UPDATE training_modules
-SET video_url = 'https://www.youtube.com/embed/YOUR_VIDEO_ID'
-WHERE title = 'Soil Preparation & Planting';
-```
-
----
-
-## Contact & Support
-
-Platform: AgriBridge
-WhatsApp: +256 755 966 690
-Email: info@agribridge.ug
-Location: Kampala, Uganda
-
-© 2026 AgriBridge · Uganda Farm Intelligence Platform
